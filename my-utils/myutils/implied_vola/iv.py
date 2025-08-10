@@ -6,7 +6,7 @@ from math import exp
 from typing import Tuple
 
 from myutils.implied_vola.black_scholes import bs_price, vega
-from myutils.math_methods.numerical_solvers.Newton_Raphson import newton_basic
+from myutils.math_methods.numerical_solvers.Newton_Raphson import newton_raphson
 from myutils.math_methods.numerical_solvers.Bisection import bisection_basic
 
 
@@ -127,7 +127,7 @@ def implied_vol_bs(
         return vega(S, K, T, r, q, sig)
 
     # Try Newton first
-    nres = newton_basic(f, fp, x0=sigma_init, tol=tol, max_iter=max_iter, bounds=bounds)
+    nres = newton_raphson(f, fp, x0=sigma_init, tol=tol, max_iter=max_iter, bounds=bounds)
     if nres.get("converged", False):
         return (float(nres["root"]), "newton", "ok")
 

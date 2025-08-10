@@ -4,7 +4,7 @@ from typing import Dict, Tuple, Iterable
 import numpy as np
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor
-from myutils.implied_vola import black_scholes
+from myutils.implied_vola.iv import implied_vol_bs
 
 def _coerce_is_call_vectorized(series: pd.Series) -> np.ndarray:
     def _coerce(val):
@@ -20,10 +20,19 @@ def _coerce_is_call_vectorized(series: pd.Series) -> np.ndarray:
 # top-level worker so it’s picklable for ProcessPool
 def _solve_one_iv(args: Tuple[float,float,float,float,float,float,bool,float,float,int,Tuple[float,float],bool]):
     price, S, K, T, r, q, is_call, sigma_init, tol, max_iter, bounds, fallback = args
-    return black_scholes.bs_price(
-        price=price, S=S, K=K, T=T, r=r, q=q, is_call=is_call,
-        sigma_init=sigma_init, tol=tol, max_iter=max_iter,
-        bounds=bounds, fallback_to_bisection=fallback
+    return implied_vol_bs(
+        price,
+        S,
+        K,
+        T,
+        r,
+        q,
+        is_call,
+        sigma_init=sigma_init,
+        tol=tol,
+        max_iter=max_iter,
+        bounds=bounds,
+        fallback_to_bisection=fallback,
     )  # returns (sigma, method, reason)
 
 def compute_iv_on_dataframe(
